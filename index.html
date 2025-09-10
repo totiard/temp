@@ -3,57 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ulasan Pelanggan</title>
+    <title>Ulasan Pelanggan Google</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #fff; color: #333; margin: 0; padding: 15px; }
-        #reviews-widget { max-width: 600px; margin: 20px auto; }
-        .review-card { display: flex; align-items: flex-start; border-bottom: 1px solid #eee; padding: 15px 0; }
-        .review-card:last-child { border-bottom: none; }
-        .author-photo { width: 48px; height: 48px; border-radius: 50%; margin-right: 15px; }
-        .review-content { flex: 1; }
-        .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
-        .author-name { font-weight: bold; }
-        .review-time { color: #888; font-size: 0.85em; }
-        .rating-stars { color: #f5b32a; }
-        .review-text { font-size: 0.95em; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
-        .loading-state, .error-state { text-align: center; padding: 40px; color: #999; }
+        /* Reset dasar dan styling utama */
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* Kontainer utama widget */
+        #reviews-widget {
+            max-width: 500px;
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        /* Header Widget */
+        .widget-header {
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eef2f7;
+        }
+        .widget-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .widget-header img {
+            height: 24px;
+        }
+
+        /* Kontainer daftar ulasan */
+        #reviews-list {
+            padding: 10px 25px 25px 25px;
+        }
+        
+        /* Desain per kartu ulasan */
+        .review-card {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #eef2f7;
+        }
+        .review-card:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .author-photo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .review-content {
+            flex-grow: 1;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .author-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #2c3e50;
+        }
+        .review-time {
+            color: #8492a6;
+            font-size: 12px;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .rating-stars {
+            color: #fbbc05; /* Warna bintang khas Google */
+            font-size: 14px;
+        }
+
+        .review-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #52647a;
+            margin-top: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .review-text .more-link {
+            color: #1a73e8;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Styling untuk state loading dan error */
+        .loading-state, .error-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #8492a6;
+        }
     </style>
 </head>
 <body>
+
     <div id="reviews-widget">
-        <h3>Ulasan dari Google</h3>
         <div id="reviews-list">
             <div class="loading-state">Memuat ulasan...</div>
         </div>
     </div>
 
     <script>
-        // --- GANTI DENGAN URL WORKER ANDA YANG AKTIF ---
         const WORKER_URL = 'https://api-ulasan-google.totiardiansyah871.workers.dev/';
 
+        // Fungsi untuk membuat bintang
         function generateStars(rating) {
             return '★'.repeat(rating) + '☆'.repeat(5 - rating);
         }
 
+        // Fungsi untuk memotong teks panjang dan menambah "Read More"
+        function truncateText(text, limit) {
+            if (text.length <= limit) {
+                return text;
+            }
+            const truncated = text.substring(0, text.lastIndexOf(' ', limit));
+            return `${truncated}<span class="full-text" style="display:none;">${text.substring(truncated.length)}</span> <span class="more-link">Baca selengkapnya</span>`;
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
+            const widget = document.getElementById('reviews-widget');
             const reviewsList = document.getElementById('reviews-list');
-
+            
             fetch(WORKER_URL)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.json();
                 })
                 .then(reviews => {
-                    reviewsList.innerHTML = '';
+                    // Buat header widget terlebih dahulu
+                    const headerHTML = `
+                        <div class="widget-header">
+                            <h3>Ulasan dari Google</h3>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                        </div>
+                    `;
+                    widget.insertAdjacentHTML('afterbegin', headerHTML);
+                    
+                    reviewsList.innerHTML = ''; // Hapus pesan loading
+                    
                     if (!reviews || reviews.length === 0) {
-                        reviewsList.innerHTML = '<p>Belum ada ulasan yang ditampilkan.</p>';
+                        reviewsList.innerHTML = '<p>Belum ada ulasan.</p>';
                         return;
                     }
+
                     reviews.forEach(review => {
+                        if (!review.text) return; // Lewati ulasan tanpa teks
+                        
                         const card = document.createElement('div');
                         card.className = 'review-card';
+                        
+                        const reviewTextHTML = truncateText(review.text, 150);
+
                         card.innerHTML = `
                             <img src="${review.profile_photo_url}" alt="${review.author_name}" class="author-photo">
                             <div class="review-content">
@@ -62,15 +189,27 @@
                                     <span class="review-time">${review.relative_time_description}</span>
                                 </div>
                                 <div class="rating-stars">${generateStars(review.rating)}</div>
-                                <p class="review-text">${review.text}</p>
+                                <p class="review-text">${reviewTextHTML}</p>
                             </div>
                         `;
                         reviewsList.appendChild(card);
                     });
+
+                    // Tambahkan event listener untuk semua link "Baca selengkapnya"
+                    document.querySelectorAll('.more-link').forEach(link => {
+                        link.addEventListener('click', event => {
+                            const parent = event.target.parentElement;
+                            const fullText = parent.querySelector('.full-text');
+                            if (fullText) {
+                                fullText.style.display = 'inline';
+                            }
+                            event.target.style.display = 'none';
+                        });
+                    });
                 })
                 .catch(error => {
                     console.error('Fetch error:', error);
-                    reviewsList.innerHTML = '<div class="error-state">Gagal memuat ulasan. Silakan coba lagi nanti.</div>';
+                    reviewsList.innerHTML = '<div class="error-state">Gagal memuat ulasan.</div>';
                 });
         });
     </script>
