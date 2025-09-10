@@ -6,181 +6,141 @@
     <title>Ulasan Pelanggan Google</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Reset dasar dan styling utama */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f7f9fc;
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #212529;
             margin: 0;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
         }
-
-        /* Kontainer utama widget */
         #reviews-widget {
-            max-width: 500px;
+            max-width: 420px;
             width: 100%;
+            margin: auto;
             background: #fff;
+            border: 1px solid #E9ECEF;
             border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
             overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
         }
-        
-        /* Header Widget */
         .widget-header {
-            padding: 20px 25px;
+            padding: 20px 24px;
+            border-bottom: 1px solid #E9ECEF;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #eef2f7;
         }
-        .widget-header h3 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
+        .aggregate-rating { flex-grow: 1; }
+        .aggregate-rating .score {
+            font-size: 24px;
+            font-weight: 700;
+            color: #121212;
         }
-        .widget-header img {
-            height: 24px;
+        .aggregate-rating .stars svg {
+            width: 20px;
+            height: 20px;
+            fill: #FABB05;
         }
-
-        /* Kontainer daftar ulasan */
-        #reviews-list {
-            padding: 10px 25px 25px 25px;
+        .aggregate-rating .total {
+            font-size: 14px;
+            color: #6C757D;
+            margin-top: 4px;
         }
-        
-        /* Desain per kartu ulasan */
+        .google-logo svg { width: 60px; height: auto; }
+        #reviews-list { padding: 8px 24px; max-height: 400px; overflow-y: auto; }
         .review-card {
             display: flex;
-            padding: 15px 0;
-            border-bottom: 1px solid #eef2f7;
+            padding: 16px 0;
+            border-bottom: 1px solid #E9ECEF;
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+            animation-delay: var(--animation-delay, 0s);
         }
-        .review-card:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .author-photo {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-
-        .review-content {
-            flex-grow: 1;
-        }
-        
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-        .author-name {
-            font-weight: 600;
-            font-size: 15px;
-            color: #2c3e50;
-        }
-        .review-time {
-            color: #8492a6;
-            font-size: 12px;
-            flex-shrink: 0;
-            margin-left: 10px;
-        }
-
-        .rating-stars {
-            color: #fbbc05; /* Warna bintang khas Google */
-            font-size: 14px;
-        }
-
-        .review-text {
-            font-size: 14px;
-            line-height: 1.6;
-            color: #52647a;
-            margin-top: 8px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .review-text .more-link {
-            color: #1a73e8;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        /* Styling untuk state loading dan error */
-        .loading-state, .error-state {
+        .review-card:last-child { border-bottom: none; }
+        .author-photo { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
+        .review-content { flex-grow: 1; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .author-name { font-weight: 600; font-size: 15px; }
+        .review-time { color: #6C757D; font-size: 12px; }
+        .review-card .stars svg { width: 14px; height: 14px; fill: #FABB05; }
+        .review-text { font-size: 14px; line-height: 1.6; color: #495057; margin-top: 8px; }
+        .widget-footer {
+            padding: 16px 24px;
+            background-color: #F8F9FA;
             text-align: center;
-            padding: 50px 20px;
-            color: #8492a6;
+            border-top: 1px solid #E9ECEF;
         }
+        .all-reviews-btn {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #1A73E8;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+        .all-reviews-btn:hover { background-color: #1765CC; }
+        .loading-state, .error-state { padding: 50px; text-align: center; color: #6C757D; }
     </style>
 </head>
 <body>
-
-    <div id="reviews-widget">
-        <div id="reviews-list">
-            <div class="loading-state">Memuat ulasan...</div>
-        </div>
+    <div id="reviews-widget" style="opacity:0;"> <div class="loading-state">Memuat ulasan...</div>
     </div>
-
     <script>
         const WORKER_URL = 'https://api-ulasan-google.totiardiansyah871.workers.dev/';
 
-        // Fungsi untuk membuat bintang
+        // Ikon Bintang SVG
+        const starSVG = `<svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>`;
+
         function generateStars(rating) {
-            return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+            return starSVG.repeat(Math.round(rating));
         }
 
-        // Fungsi untuk memotong teks panjang dan menambah "Read More"
-        function truncateText(text, limit) {
-            if (text.length <= limit) {
-                return text;
-            }
-            const truncated = text.substring(0, text.lastIndexOf(' ', limit));
-            return `${truncated}<span class="full-text" style="display:none;">${text.substring(truncated.length)}</span> <span class="more-link">Baca selengkapnya</span>`;
-        }
-        
         document.addEventListener('DOMContentLoaded', () => {
             const widget = document.getElementById('reviews-widget');
-            const reviewsList = document.getElementById('reviews-list');
-            
+
             fetch(WORKER_URL)
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.json();
                 })
-                .then(reviews => {
-                    // Buat header widget terlebih dahulu
-                    const headerHTML = `
-                        <div class="widget-header">
-                            <h3>Ulasan dari Google</h3>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                .then(data => {
+                    widget.innerHTML = ''; // Hapus pesan loading
+
+                    // 1. Buat Header
+                    const header = document.createElement('div');
+                    header.className = 'widget-header';
+                    header.innerHTML = `
+                        <div class="aggregate-rating">
+                            <span class="score">${data.overallRating}</span>
+                            <div class="stars">${generateStars(data.overallRating)}</div>
+                            <div class="total">Berdasarkan ${data.totalRatings} ulasan</div>
+                        </div>
+                        <div class="google-logo">
+                            <svg viewBox="0 0 76 26"><path fill="#4285F4" d="M18.33 25.53c-2.4 0-4.59-.8-6.52-2.38s-2.9-3.7-2.9-6.33c0-2.65.97-4.76 2.9-6.35s4.12-2.38 6.52-2.38c1.65 0 3.1.43 4.32 1.3V9.5H12.9v-3h12.3v14.5c-1.3 1.1-2.9 1.6-4.8 1.6zM18.3 22.8c1.3 0 2.4-.4 3.3-1.2V14c-.9-.8-2-1.2-3.3-1.2-1.95 0-3.38.9-4.28 2.7-.9 1.8-.9 3.2-.9 3.2s1.42 2.9 5.18 2.9zm13.1-14.8h3.3v14.1h-3.3V8zm-8.8 14.2c-1.8 0-3.3-1.5-3.3-3.3s1.5-3.3 3.3-3.3c1.8 0 3.3 1.5 3.3 3.3s-1.5 3.3-3.3 3.3zm0-14c-1.8 0-3.3-1.5-3.3-3.3s1.5-3.3 3.3-3.3c1.8 0 3.3 1.5 3.3 3.3s-1.5 3.3-3.3 3.3zM42.8 8h3.1v14.1h-3.1V8zm-8.7 14c-1.8 0-3.3-1.5-3.3-3.3s1.5-3.3 3.3-3.3c1.8 0 3.3 1.5 3.3 3.3s-1.5 3.3-3.3 3.3zm0-14c-1.8 0-3.3-1.5-3.3-3.3s1.5-3.3 3.3-3.3c1.8 0 3.3 1.5 3.3 3.3s-1.5 3.3-3.3 3.3zM53.2.7h3.3v21.3h-3.3V.7zM62.5 8.2c-2.3 0-4 .9-4.8 2.6V8H54v14h3.3v-7.6c0-1.8.8-2.8 2.4-2.8 1.4 0 2.2.8 2.2 2.7v7.7H65V13c0-2.8-1.5-4.8-4-4.8zM.5 8h3.3v10.8c0 2.1 1.1 3.1 2.8 3.1 1.6 0 2.7-1.1 2.7-3.1V8h3.3v10.5c0 3.8-2.2 5.8-6 5.8s-6-2-6-5.8V8z"></path></svg>
                         </div>
                     `;
-                    widget.insertAdjacentHTML('afterbegin', headerHTML);
-                    
-                    reviewsList.innerHTML = ''; // Hapus pesan loading
-                    
-                    if (!reviews || reviews.length === 0) {
-                        reviewsList.innerHTML = '<p>Belum ada ulasan.</p>';
-                        return;
-                    }
+                    widget.appendChild(header);
 
-                    reviews.forEach(review => {
-                        if (!review.text) return; // Lewati ulasan tanpa teks
-                        
+                    // 2. Buat Daftar Ulasan
+                    const reviewsList = document.createElement('div');
+                    reviewsList.id = 'reviews-list';
+                    widget.appendChild(reviewsList);
+
+                    data.reviews.forEach((review, index) => {
+                        if (!review.text) return;
                         const card = document.createElement('div');
                         card.className = 'review-card';
-                        
-                        const reviewTextHTML = truncateText(review.text, 150);
-
+                        card.style.setProperty('--animation-delay', `${index * 100}ms`);
                         card.innerHTML = `
                             <img src="${review.profile_photo_url}" alt="${review.author_name}" class="author-photo">
                             <div class="review-content">
@@ -188,28 +148,25 @@
                                     <span class="author-name">${review.author_name}</span>
                                     <span class="review-time">${review.relative_time_description}</span>
                                 </div>
-                                <div class="rating-stars">${generateStars(review.rating)}</div>
-                                <p class="review-text">${reviewTextHTML}</p>
+                                <div class="stars">${generateStars(review.rating)}</div>
+                                <p class="review-text">${review.text}</p>
                             </div>
                         `;
                         reviewsList.appendChild(card);
                     });
-
-                    // Tambahkan event listener untuk semua link "Baca selengkapnya"
-                    document.querySelectorAll('.more-link').forEach(link => {
-                        link.addEventListener('click', event => {
-                            const parent = event.target.parentElement;
-                            const fullText = parent.querySelector('.full-text');
-                            if (fullText) {
-                                fullText.style.display = 'inline';
-                            }
-                            event.target.style.display = 'none';
-                        });
-                    });
+                    
+                    // 3. Buat Footer dengan Tombol
+                    const footer = document.createElement('div');
+                    footer.className = 'widget-footer';
+                    footer.innerHTML = `<a href="${data.url}" target="_blank" rel="noopener noreferrer" class="all-reviews-btn">Lihat semua ulasan</a>`;
+                    widget.appendChild(footer);
                 })
                 .catch(error => {
                     console.error('Fetch error:', error);
-                    reviewsList.innerHTML = '<div class="error-state">Gagal memuat ulasan.</div>';
+                    widget.innerHTML = '<div class="error-state">Gagal memuat ulasan.</div>';
+                })
+                .finally(() => {
+                    widget.style.opacity = 1; // Tampilkan widget setelah selesai
                 });
         });
     </script>
