@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Ulasan Google</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f6f8; color: #333; margin: 0; padding: 15px; }
+        .review-card { display: flex; align-items: flex-start; border-bottom: 1px solid #eee; padding: 15px 0; }
+        .review-card:last-child { border-bottom: none; }
+        .author-photo { width: 48px; height: 48px; border-radius: 50%; margin-right: 15px; }
+        .review-content { flex: 1; }
+        .review-header { display: flex; align-items: center; margin-bottom: 5px; }
+        .author-name { font-weight: bold; margin-right: 10px; }
+        .review-time { color: #888; font-size: 0.85em; }
+        .rating-stars { color: #f5b32a; }
+        .review-text { font-size: 0.95em; line-height: 1.5; white-space: pre-wrap; }
+        .loading-state { text-align: center; padding: 40px; color: #999; }
+    </style>
+</head>
+<body>
+    <div id="reviews-list">
+        <div class="loading-state">Memuat ulasan...</div>
+    </div>
+
+    <script>
+        // URL API kita adalah path relatif ke function yang kita buat.
+        // Cloudflare Pages secara otomatis mengarahkannya.
+        const API_URL = '/get-reviews';
+
+        function generateStars(rating) {
+            return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const reviewsList = document.getElementById('reviews-list');
+
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(reviews => {
+                    reviewsList.innerHTML = '';
+                    if (!reviews || reviews.length === 0) {
+                        reviewsList.innerHTML = '<p>Belum ada ulasan.</p>';
+                        return;
+                    }
+                    reviews.forEach(review => {
+                        const card = document.createElement('div');
+                        card.className = 'review-card';
+                        card.innerHTML = `
+                            <img src="${review.profile_photo_url}" alt="${review.author_name}" class="author-photo">
+                            <div class="review-content">
+                                <div class="review-header">
+                                    <span class="author-name">${review.author_name}</span>
+                                    <span class="review-time">${review.relative_time_description}</span>
+                                </div>
+                                <div class="rating-stars">${generateStars(review.rating)}</div>
+                                <p class="review-text">${review.text}</p>
+                            </div>
+                        `;
+                        reviewsList.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching reviews:', error);
+                    reviewsList.innerHTML = '<p>Gagal memuat ulasan.</p>';
+                });
+        });
+    </script>
+</body>
+</html>
