@@ -114,8 +114,8 @@
             }
             
             textarea.input-ghost {
-                white-space: pre-wrap;
-                height: auto
+                white-space: pre-wrap !important;
+                overflow: hidden !important;
             }
 
             ::placeholder {
@@ -462,7 +462,7 @@
                             <i class="fas ${isPayment ? 'fa-money-bill-wave' : 'fa-ticket-alt'} ${isPayment ? 'text-rose-400' : 'text-blue-300'} mt-1 text-xs print:hidden"></i>
                             <div class="w-full">
                                 <input type="text" value="${item.desc}" oninput="updateItem(${index}, 'desc', this.value)" class="input-ghost font-bold mb-0.5 placeholder-gray-400 w-full ${rowClass}" placeholder="Deskripsi Item">
-                                <textarea oninput="updateItem(${index}, 'sub', this.value)" rows="1" class="input-ghost text-xs ${isPayment ? 'text-rose-400' : 'text-gray-500'} w-full placeholder-gray-300 resize-none h-auto overflow-hidden leading-tight" style="min-height: 1.2em">${item.sub}</textarea>
+                                <textarea oninput="updateItem(${index}, 'sub', this.value); autoExpand(this);" rows="1" class="input-ghost text-xs ${isPayment ? 'text-rose-400' : 'text-gray-500'} w-full placeholder-gray-300 resize-none overflow-hidden leading-relaxed" style="min-height: 20px;">${item.sub}</textarea>
                             </div>
                         </div>
                     </td>
@@ -486,7 +486,14 @@
                 `;
                 tbody.appendChild(tr);
             });
-            calculateAll();     
+            calculateAll();
+            
+            // Otomatis menyesuaikan tinggi textarea
+            setTimeout(() => {
+                document.querySelectorAll('textarea').forEach(ta => {
+                    autoExpand(ta);
+                });
+            }, 10);
         }
 
         // --- 4. UPDATE ITEM & CALCULATION ---
@@ -495,9 +502,7 @@
                 items[index][field] = parseFloat(value) || 0;
                 const totalCell = document.getElementById(`row-total-${index}`);
                 const isPayment = items[index].type === 'payment';
-                if(totalCell) {
-                    totalCell.textContent = (isPayment ? '- ' : '') + formatRupiah(items[index].qty * items[index].price);
-                }
+                if(totalCell) totalCell.textContent = (isPayment ? '- ' : '') + formatRupiah(items[index].qty * items[index].price);
                 calculateAll();
             } else {
                 items[index][field] = value;
@@ -626,36 +631,12 @@
         }
 
         // --- 8. AUTO RESIZE TEXTAREA ---
-        document.addEventListener('input', function (event) {
-
-            if (event.target.tagName.toLowerCase() !== 'textarea') return;
-
-            autoExpand(event.target);
-
-        }, false);
-
-
-
         function autoExpand(field) {
-
-Copy
-
-Copy
-
-            field.style.height = 'inherit';
-
-            const computed = window.getComputedStyle(field);
-
-            const height = parseInt(computed.getPropertyValue('border-top-width'), 10)
-
-                        + parseInt(computed.getPropertyValue('padding-top'), 10)
-
-                        + field.scrollHeight
-
-                        + parseInt(computed.getPropertyValue('padding-bottom'), 10)
-
-                        + parseInt(computed.getPropertyValue('border-bottom-width'), 10);
-                        field.style.height = height + 'px';
+            // Gunakan 'auto' alih-alih '1px' agar elemen bisa mengecil 
+            // kembali dengan sempurna saat teks dihapus.
+            field.style.height = 'auto';
+            field.style.height = (field.scrollHeight + 2) + 'px';
+        }
 
         // --- 9. FITUR EXPORT (SIMPAN KE JSON) ---
         function exportData() {
