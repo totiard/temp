@@ -457,28 +457,28 @@
                 tr.className = `border-b border-gray-100 hover:bg-gray-50 transition-colors group text-sm ${rowClass}`;
                 
                 tr.innerHTML = `
-                    <td class="py-3 px-3 align-top">
+                    <td class="py-1.5 px-3 align-top">
                         <div class="flex items-start gap-2">
                             <i class="fas ${isPayment ? 'fa-money-bill-wave' : 'fa-ticket-alt'} ${isPayment ? 'text-rose-400' : 'text-blue-300'} mt-1 text-xs print:hidden"></i>
                             <div class="w-full">
                                 <input type="text" value="${item.desc}" oninput="updateItem(${index}, 'desc', this.value)" class="input-ghost font-bold mb-0.5 placeholder-gray-400 w-full ${rowClass}" placeholder="Deskripsi Item">
-                                <textarea oninput="updateItem(${index}, 'sub', this.value); autoExpand(this);" rows="1" class="input-ghost text-xs ${isPayment ? 'text-rose-400' : 'text-gray-500'} w-full placeholder-gray-300 resize-none overflow-hidden leading-relaxed" style="min-height: 20px;">${item.sub}</textarea>
+                                <textarea oninput="updateItem(${index}, 'sub', this.value); autoExpand(this);" rows="1" class="input-ghost text-xs ${isPayment ? 'text-rose-400' : 'text-gray-500'} w-full placeholder-gray-300 resize-none overflow-hidden leading-snug" style="min-height: 20px;">${item.sub}</textarea>
                             </div>
                         </div>
                     </td>
-                    <td class="py-3 px-2 align-top text-center">
+                    <td class="py-1.5 px-2 align-top text-center">
                         <input type="number" value="${item.qty}" oninput="updateItem(${index}, 'qty', this.value)" class="input-ghost text-center w-12 mx-auto font-medium ${rowClass}">
                     </td>
-                    <td class="py-3 px-2 align-top text-right">
+                    <td class="py-1.5 px-2 align-top text-right">
                         <div class="flex justify-end items-center">
                             <span class="text-xs mr-1 font-mono">${pricePrefix}</span>
                             <input type="number" value="${item.price}" oninput="updateItem(${index}, 'price', this.value)" class="input-ghost text-right w-full font-mono text-xs ${rowClass}">
                         </div>
                     </td>
-                    <td class="py-3 px-3 align-top text-right font-bold font-mono text-sm ${rowClass}" id="row-total-${index}">
+                    <td class="py-1.5 px-3 align-top text-right font-bold font-mono text-sm ${rowClass}" id="row-total-${index}">
                         ${isPayment ? '-' : ''} ${formatRupiah(item.qty * item.price)}
                     </td>
-                    <td class="py-3 px-2 align-middle text-center no-print">
+                    <td class="py-1.5 px-2 align-middle text-center no-print">
                         <button onclick="deleteItem(${index})" class="text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
                             <i class="fas fa-trash-alt"></i>
                         </button>
